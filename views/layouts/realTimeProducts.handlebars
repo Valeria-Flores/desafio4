@@ -1,0 +1,49 @@
+<!-- Formulario para agregar un nuevo producto -->
+<form id="addProductForm">
+  <input type="text" name="title" placeholder="Título">
+  <input type="text" name="description" placeholder="Descripción">
+  <input type="number" name="price" placeholder="Precio">
+  <input type="text" name="thumbnail" placeholder="Thumbnail">
+  <input type="text" name="code" placeholder="Código">
+  <input type="number" name="stock" placeholder="Stock">
+  <button type="submit">Agregar Producto</button>
+</form>
+
+<!-- Lista de productos -->
+<ul id="productList">
+  {{#each products}}
+  <li>{{this.title}}</li>
+  {{/each}}
+</ul>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  // Manejo del formulario para agregar productos
+  const addProductForm = document.getElementById('addProductForm');
+  addProductForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(addProductForm);
+    const productData = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      price: formData.get('price'),
+      thumbnail: formData.get('thumbnail'),
+      code: formData.get('code'),
+      stock: formData.get('stock')
+    };
+    socket.emit('addProduct', productData);
+  });
+
+  // Escucha del evento para actualizar la lista de productos
+  socket.on('updateProducts', (products) => {
+    const productList = document.getElementById('productList');
+    productList.innerHTML = '';
+    products.forEach((product) => {
+      const li = document.createElement('li');
+      li.textContent = product.title;
+      productList.appendChild(li);
+    });
+  });
+</script>
